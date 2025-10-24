@@ -171,7 +171,16 @@ async function getAnswer() {
             },
         });
 
-        const jsonResponse = JSON.parse(response.text);
+        let jsonResponse;
+        try {
+            // The API response for JSON can sometimes be wrapped in markdown.
+            const cleanedText = response.text.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+            jsonResponse = JSON.parse(cleanedText);
+        } catch (parseError) {
+            console.error("Lỗi phân tích JSON từ phản hồi của API:", parseError, "Phản hồi gốc:", response.text);
+            throw new Error("Không thể xử lý phản hồi từ AI vì định dạng không hợp lệ.");
+        }
+
 
         // Display response
         (document.getElementById('answer-text') as HTMLParagraphElement).textContent = jsonResponse.answer;
@@ -182,11 +191,21 @@ async function getAnswer() {
 
     } catch (error) {
         console.error(error);
+        
+        let displayMessage = 'Đã xảy ra lỗi khi nhận câu trả lời. Vui lòng thử lại.'; // Default message
+        if (error instanceof Error) {
+            if (error.message.toLowerCase().includes('api key')) {
+                displayMessage = 'Lỗi xác thực API. Vui lòng đảm bảo API key đã được cấu hình chính xác.';
+            } else if (error.message.includes('không hợp lệ')) { // Catches the custom JSON error
+                displayMessage = error.message;
+            }
+        }
+
         // Display error
         if (!floatingWidget.classList.contains('expanded')) {
             floatingWidget.classList.add('expanded');
         }
-        errorContainer.textContent = 'Đã xảy ra lỗi khi nhận câu trả lời. Vui lòng thử lại.';
+        errorContainer.textContent = displayMessage;
         errorContainer.style.display = 'block';
         responseContainer.style.display = 'none';
     } finally {
