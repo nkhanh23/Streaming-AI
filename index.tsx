@@ -2,11 +2,10 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
-import { GoogleGenAI, Type } from "@google/genai";
 
 // State
 let stream: MediaStream | null = null;
-let userApiKey: string | null = null;
+let apiKey: string = '';
 
 // DOM Elements
 const startButton = document.getElementById('start-button') as HTMLButtonElement;
@@ -23,42 +22,35 @@ const responseContainer = document.getElementById('response-container') as HTMLD
 const errorContainer = document.getElementById('error-container') as HTMLDivElement;
 
 
-// Gemini AI Model
-const model = 'gemini-2.5-flash';
-const API_KEY_STORAGE_KEY = 'gemini-api-key';
+// OpenAI API Configuration
+const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions';
+const OPENAI_MODEL = 'gpt-4o';
 
 // --- API Key Handling ---
-
-function updateStartButtonState() {
-    startButton.disabled = !apiKeyInput.value.trim();
-}
 
 function updatePipButtonState() {
     pipButton.disabled = !stream;
 }
 
-
 document.addEventListener('DOMContentLoaded', () => {
-    const storedApiKey = localStorage.getItem(API_KEY_STORAGE_KEY);
-    if (storedApiKey) {
-        apiKeyInput.value = storedApiKey;
-        userApiKey = storedApiKey;
-    }
-    updateStartButtonState();
     updatePipButtonState();
     if (!document.pictureInPictureEnabled) {
         pipButton.style.display = 'none';
     }
+
+    // Load API Key from localStorage
+    const savedApiKey = localStorage.getItem('openai-api-key');
+    if (savedApiKey) {
+        apiKey = savedApiKey;
+        apiKeyInput.value = savedApiKey;
+        startButton.disabled = false;
+    }
 });
 
 apiKeyInput.addEventListener('input', () => {
-    userApiKey = apiKeyInput.value.trim();
-    if (userApiKey) {
-        localStorage.setItem(API_KEY_STORAGE_KEY, userApiKey);
-    } else {
-        localStorage.removeItem(API_KEY_STORAGE_KEY);
-    }
-    updateStartButtonState();
+    apiKey = apiKeyInput.value.trim();
+    localStorage.setItem('openai-api-key', apiKey);
+    startButton.disabled = !apiKey;
 });
 
 
@@ -170,7 +162,7 @@ function stopStream() {
     setupContainer.style.display = 'flex';
     floatingWidget.style.display = 'none';
     screenStreamVideo.style.display = 'none';
-    updateStartButtonState();
+    startButton.disabled = !apiKey; // Re-enable based on API key presence
     updatePipButtonState();
 }
 
@@ -178,8 +170,8 @@ function stopStream() {
  * Starts the screen capture stream and displays the floating widget.
  */
 async function startStream() {
-    if (!userApiKey) {
-        alert("Vui lòng nhập khóa API của bạn.");
+    if (!apiKey) {
+        alert("Vui lòng nhập API Key của bạn để bắt đầu.");
         return;
     }
     startButton.disabled = true;
@@ -231,15 +223,6 @@ screenStreamVideo.addEventListener('leavepictureinpicture', () => {
     pipButton.textContent = 'Vào PiP';
 });
 
-/**
- * Converts the current video frame on a canvas to a Gemini API Part object.
- */
-function canvasToGenerativePart(canvas: HTMLCanvasElement): { inlineData: { data: string; mimeType: string; }; } {
-    const base64EncodedData = canvas.toDataURL('image/jpeg').split(',')[1];
-    return {
-        inlineData: { data: base64EncodedData, mimeType: 'image/jpeg' },
-    };
-}
 
 /**
  * Displays an error message in the widget.
@@ -255,12 +238,12 @@ function displayError(message: string) {
 }
 
 /**
- * Fetches the answer from the Gemini API and updates the UI.
+ * Fetches the answer from the OpenAI API and updates the UI.
  */
 async function getAnswer() {
     if (!stream) return;
-    if (!userApiKey) {
-        displayError("Không tìm thấy khóa API. Vui lòng quay lại màn hình chính để thiết lập.");
+    if (!apiKey) {
+        displayError("Không tìm thấy API Key. Vui lòng quay lại màn hình chính và nhập key của bạn.");
         return;
     }
 
@@ -276,17 +259,15 @@ async function getAnswer() {
     setLoading(true);
 
     try {
-        const ai = new GoogleGenAI({ apiKey: userApiKey });
-
+        // Capture the current frame
         captureCanvas.width = screenStreamVideo.videoWidth;
         captureCanvas.height = screenStreamVideo.videoHeight;
         const context = captureCanvas.getContext('2d');
         if (context) {
             context.drawImage(screenStreamVideo, 0, 0, captureCanvas.width, captureCanvas.height);
         }
-        
-        const imagePart = canvasToGenerativePart(captureCanvas);
-        
+        const base64ImageData = captureCanvas.toDataURL('image/jpeg').split(',')[1];
+
         const systemInstruction = `Bạn là một trợ lý thông minh. Nhiệm vụ của bạn là đọc và hiểu nội dung câu hỏi trong ảnh.
         Khi nhận được ảnh, bạn cần:
         1. Hiểu đúng nội dung câu hỏi.
@@ -294,37 +275,57 @@ async function getAnswer() {
         3. Giải thích ngắn gọn lý do hoặc cách ra đáp án (nếu cần).
         4. Đánh giá mức độ tin cậy của câu trả lời (ví dụ: Cao, Trung bình, Thấp).
         
-        Hãy trả về kết quả dưới dạng JSON theo schema đã cho.`;
-        
-        const response = await ai.models.generateContent({
-            model: model,
-            contents: { 
-                parts: [
-                    { text: "Phân tích và trả lời câu hỏi trong hình ảnh này." },
-                    imagePart
-                ]
-            },
-            config: {
-                systemInstruction: systemInstruction,
-                responseMimeType: 'application/json',
-                responseSchema: {
-                    type: Type.OBJECT,
-                    properties: {
-                        answer: { type: Type.STRING, description: 'Câu trả lời ngắn gọn, chính xác.' },
-                        explanation: { type: Type.STRING, description: 'Giải thích ngắn gọn cho câu trả lời.' },
-                        confidence: { type: Type.STRING, description: 'Mức độ tin cậy (Cao, Trung bình, Thấp).' },
-                    },
-                    required: ['answer', 'explanation', 'confidence'],
+        Hãy trả về kết quả dưới dạng một đối tượng JSON hợp lệ với các khóa sau: "answer", "explanation", "confidence".`;
+
+        const payload = {
+            model: OPENAI_MODEL,
+            response_format: { type: "json_object" },
+            messages: [
+                {
+                    role: "system",
+                    content: systemInstruction
                 },
+                {
+                    role: "user",
+                    content: [
+                        {
+                            type: "text",
+                            text: "Phân tích và trả lời câu hỏi trong hình ảnh này."
+                        },
+                        {
+                            type: "image_url",
+                            image_url: {
+                                url: `data:image/jpeg;base64,${base64ImageData}`
+                            }
+                        }
+                    ]
+                }
+            ],
+            max_tokens: 500
+        };
+
+        const apiResponse = await fetch(OPENAI_API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`
             },
+            body: JSON.stringify(payload)
         });
 
+        if (!apiResponse.ok) {
+            const errorData = await apiResponse.json();
+            throw new Error(`Lỗi từ API OpenAI: ${errorData.error?.message || apiResponse.statusText}`);
+        }
+
+        const data = await apiResponse.json();
+        const messageContent = data.choices[0].message.content;
+        
         let jsonResponse;
         try {
-            const cleanedText = response.text.replace(/^```json\s*/, '').replace(/\s*```$/, '');
-            jsonResponse = JSON.parse(cleanedText);
+            jsonResponse = JSON.parse(messageContent);
         } catch (parseError) {
-            console.error("Lỗi phân tích JSON từ phản hồi của API:", parseError, "Phản hồi gốc:", response.text);
+            console.error("Lỗi phân tích JSON từ phản hồi của API:", parseError, "Phản hồi gốc:", messageContent);
             throw new Error("Không thể xử lý phản hồi từ AI vì định dạng không hợp lệ.");
         }
 
@@ -339,9 +340,11 @@ async function getAnswer() {
         
         let displayMessage = 'Đã xảy ra lỗi khi nhận câu trả lời. Vui lòng thử lại.';
         if (error instanceof Error) {
-            if (error.message.toLowerCase().includes('api key')) {
-                displayMessage = 'Lỗi xác thực API. Khóa API của bạn không hợp lệ hoặc thiếu quyền truy cập.';
-            } else if (error.message.includes('không hợp lệ')) {
+            if (error.message.toLowerCase().includes('incorrect api key')) {
+                displayMessage = 'Lỗi xác thực API. Khóa API của bạn không hợp lệ hoặc đã hết hạn.';
+            } else if (error.message.includes('Lỗi từ API OpenAI:')) {
+                displayMessage = error.message;
+            } else if (error.message.includes('định dạng không hợp lệ')) {
                 displayMessage = error.message;
             }
         }

@@ -68,6 +68,29 @@ html, body {
     line-height: 1.6;
 }
 
+.api-key-container {
+    width: 100%;
+    margin-top: 1.5rem;
+    position: relative;
+}
+
+#api-key-input {
+    width: 100%;
+    padding: 12px 15px;
+    font-size: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#api-key-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.2);
+}
+
+
 .setup-box .shortcuts {
     font-size: 0.9rem;
     color: #5f6368;
@@ -86,52 +109,6 @@ html, body {
     border-bottom: 1px solid #caced1;
 }
 
-/* API Key Input Styles */
-.api-key-container {
-    margin-top: 1.5rem;
-    text-align: left;
-    width: 100%;
-}
-
-.api-key-container label {
-    font-weight: 500;
-    font-size: 0.9rem;
-    color: var(--text-color);
-    display: block;
-    margin-bottom: 0.5rem;
-}
-
-#api-key-input {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid var(--border-color);
-    border-radius: 5px;
-    font-size: 1rem;
-    box-sizing: border-box; /* To include padding in the width */
-}
-
-#api-key-input:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
-}
-
-.api-key-info {
-    font-size: 0.8rem;
-    color: #5f6368;
-    margin-top: 0.5rem;
-    text-align: center;
-}
-
-.api-key-info a {
-    color: var(--primary-color);
-    text-decoration: none;
-}
-
-.api-key-info a:hover {
-    text-decoration: underline;
-}
-
 #start-button {
     display: inline-block;
     background-color: var(--primary-color);
@@ -146,7 +123,7 @@ html, body {
     margin-top: 1.5rem;
 }
 
-#start-button:hover {
+#start-button:hover:not(:disabled) {
     background-color: var(--primary-hover-color);
 }
 
