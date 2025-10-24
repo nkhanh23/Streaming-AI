@@ -1,0 +1,7 @@
+{
+  "name": "Floating Q&A Assistant",
+  "description": "Starts a screen share and displays a floating widget within the browser tab to get AI-powered answers for on-screen questions.",
+  "requestFramePermissions": [
+    "display-capture"
+  ]
+}

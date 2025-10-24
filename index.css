@@ -1,0 +1,251 @@
+:root {
+    --primary-color: #4285F4;
+    --primary-hover-color: #357ae8;
+    --danger-color: #d93025;
+    --danger-hover-color: #c5261d;
+    --background-color: #f8f9fa;
+    --card-background-color: #ffffff;
+    --text-color: #3c4043;
+    --border-color: #dadce0;
+    --font-family: 'Inter', sans-serif;
+    --box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    --box-shadow-hover: 0 6px 16px rgba(0,0,0,0.15);
+    --icon-background: #34A853;
+    --icon-hover: #2c9546;
+}
+
+/* Base styles */
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    font-family: var(--font-family);
+    background-color: var(--background-color);
+}
+
+/* Background video for screen stream */
+#screen-stream {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Covers the whole screen */
+    z-index: -1; /* Puts it in the background */
+    display: none;
+}
+
+
+/* Main Window Setup Screen */
+#setup-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.setup-box {
+    text-align: center;
+    background-color: var(--card-background-color);
+    padding: 2rem 3rem;
+    border-radius: 8px;
+    box-shadow: var(--box-shadow);
+    max-width: 500px;
+}
+
+.setup-box h1 {
+    color: var(--primary-color);
+    margin: 0 0 0.5rem 0;
+}
+
+.setup-box p {
+    color: #5f6368;
+    line-height: 1.6;
+}
+
+.setup-box .shortcuts {
+    font-size: 0.9rem;
+    color: #5f6368;
+    margin-top: 1.5rem;
+    background-color: #f1f3f4;
+    padding: 0.75rem;
+    border-radius: 4px;
+}
+
+.setup-box .shortcuts strong {
+    font-weight: 500;
+    color: var(--text-color);
+    background-color: #e8eaed;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border-bottom: 1px solid #caced1;
+}
+
+#start-button {
+    display: inline-block;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+    border: none;
+    font-size: 1rem;
+    margin-top: 1.5rem;
+}
+
+#start-button:hover {
+    background-color: var(--primary-hover-color);
+}
+
+#start-button:disabled {
+     background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+
+/* Floating Widget Styles */
+.widget-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+#widget-toggle-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 28px;
+    box-shadow: var(--box-shadow);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+#widget-toggle-icon:hover {
+    transform: scale(1.1);
+    box-shadow: var(--box-shadow-hover);
+}
+
+.widget-content {
+    position: absolute;
+    bottom: 80px; /* Position above the icon */
+    right: 0;
+    width: 350px;
+    max-height: calc(100vh - 120px); /* Ensure it doesn't go off-screen */
+    overflow-y: auto;
+    background-color: var(--card-background-color);
+    border-radius: 12px;
+    box-shadow: var(--box-shadow);
+    padding: 1.5rem;
+    box-sizing: border-box;
+    
+    opacity: 0;
+    transform-origin: bottom right;
+    transform: translateY(10px) scale(0.95);
+    visibility: hidden;
+    transition: opacity 0.25s ease-out, transform 0.25s ease-out, visibility 0s 0.25s;
+}
+
+.widget-container.expanded .widget-content {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    visibility: visible;
+    transition-delay: 0s;
+}
+
+.widget-container.expanded #widget-toggle-icon {
+    transform: rotate(135deg);
+    background-color: var(--danger-color);
+}
+
+.widget-container.expanded #widget-toggle-icon:hover {
+    transform: rotate(135deg) scale(1.1);
+    background-color: var(--danger-hover-color);
+    box-shadow: var(--box-shadow-hover);
+}
+
+
+#answer-button {
+    width: 100%;
+    padding: 12px 24px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: white;
+    background-color: var(--icon-background);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-bottom: 1rem;
+}
+
+#answer-button:hover:not(:disabled) {
+    background-color: var(--icon-hover);
+}
+
+#answer-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+
+/* Spinner, Response, Error */
+.spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border-left-color: var(--primary-color);
+    animation: spin 1s ease infinite;
+    margin: 1.5rem auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.response-container {
+    background-color: #e8f0fe;
+    border-left: 5px solid var(--primary-color);
+    padding: 1rem 1.5rem;
+    border-radius: 5px;
+    text-align: left;
+    margin-top: 1rem;
+}
+
+.response-container h2, .response-container h3 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    color: #1a73e8;
+}
+
+.response-container p {
+    margin: 0 0 1rem 0;
+    line-height: 1.6;
+}
+
+.response-container p:last-child {
+    margin-bottom: 0;
+}
+
+.error-container {
+    background-color: #fce8e6;
+    border-left: 5px solid #d93025;
+    padding: 1rem 1.5rem;
+    border-radius: 5px;
+    color: #a50e04;
+    font-weight: 500;
+    text-align: left;
+    margin-top: 1rem;
+}
