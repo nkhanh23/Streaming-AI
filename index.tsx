@@ -20,8 +20,7 @@ const responseContainer = document.getElementById('response-container') as HTMLD
 const errorContainer = document.getElementById('error-container') as HTMLDivElement;
 
 
-// Gemini AI Setup
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Gemini AI Model
 const model = 'gemini-2.5-flash';
 
 // Event Listeners
@@ -127,6 +126,9 @@ async function getAnswer() {
     setLoading(true);
 
     try {
+        // Initialize AI client here to avoid crash on load if key is missing
+        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+
         // Capture frame
         captureCanvas.width = screenStreamVideo.videoWidth;
         captureCanvas.height = screenStreamVideo.videoHeight;
