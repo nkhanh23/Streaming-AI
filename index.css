@@ -66,48 +66,35 @@ html, body {
 .setup-box p {
     color: #5f6368;
     line-height: 1.6;
+    margin-bottom: 1.5rem;
 }
-
-.api-key-container {
-    width: 100%;
-    margin-top: 1.5rem;
-    position: relative;
-}
-
-#api-key-input {
-    width: 100%;
-    padding: 12px 15px;
-    font-size: 1rem;
-    border: 1px solid var(--border-color);
-    border-radius: 5px;
-    box-sizing: border-box;
-    transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-#api-key-input:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.2);
-}
-
 
 .setup-box .shortcuts {
     font-size: 0.9rem;
     color: #5f6368;
     margin-top: 1.5rem;
     background-color: #f1f3f4;
-    padding: 0.75rem;
+    padding: 0.75rem 1rem;
     border-radius: 4px;
+    text-align: left;
+    line-height: 1.8;
 }
 
 .setup-box .shortcuts strong {
     font-weight: 500;
     color: var(--text-color);
-    background-color: #e8eaed;
-    padding: 2px 6px;
-    border-radius: 3px;
-    border-bottom: 1px solid #caced1;
 }
+
+.setup-box .shortcuts small {
+    display: block;
+    margin-top: 0.5rem;
+    color: #3c4043;
+}
+
+.setup-box .shortcuts small strong {
+    font-weight: 700;
+}
+
 
 #start-button {
     display: inline-block;
@@ -120,7 +107,7 @@ html, body {
     transition: background-color 0.2s;
     border: none;
     font-size: 1rem;
-    margin-top: 1.5rem;
+    margin-top: 0;
 }
 
 #start-button:hover:not(:disabled) {
@@ -149,13 +136,14 @@ html, body {
     background-color: var(--primary-color);
     color: white;
     border: none;
-    cursor: grab; /* Change cursor to indicate draggability */
+    cursor: grab;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 28px;
     box-shadow: var(--box-shadow);
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
 }
 
 #widget-toggle-icon:hover {
@@ -167,16 +155,50 @@ html, body {
     cursor: grabbing;
 }
 
+#widget-toggle-icon svg {
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    transition: opacity 0.25s ease-in-out, transform 0.25s ease-in-out;
+}
+
+#widget-toggle-icon .icon-close {
+    opacity: 0;
+    transform: scale(0.7);
+}
+
+.widget-container.expanded #widget-toggle-icon .icon-open {
+    opacity: 0;
+    transform: scale(0.7);
+}
+
+.widget-container.expanded #widget-toggle-icon .icon-close {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.widget-container.expanded #widget-toggle-icon {
+    background-color: var(--danger-color);
+}
+
+.widget-container.expanded #widget-toggle-icon:hover {
+    background-color: var(--danger-hover-color);
+    transform: scale(1.1);
+}
+
 .widget-content {
     position: absolute;
     bottom: 80px; /* Position above the icon */
     right: 0;
     width: 350px;
-    max-height: calc(100vh - 120px); /* Ensure it doesn't go off-screen */
+    max-height: calc(100vh - 150px); /* Ensure it doesn't go off-screen */
     overflow-y: auto;
-    background-color: var(--card-background-color);
-    border-radius: 12px;
-    box-shadow: var(--box-shadow);
+    background-color: rgba(255, 255, 255, 0.85); /* Semi-transparent background */
+    backdrop-filter: blur(10px); /* Glassmorphism effect */
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(0,0,0,0.05);
+    border-radius: 16px; /* More rounded */
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15); /* Softer, more pronounced shadow */
     padding: 1.5rem;
     box-sizing: border-box;
     
@@ -194,17 +216,6 @@ html, body {
     transition-delay: 0s;
 }
 
-.widget-container.expanded #widget-toggle-icon {
-    transform: rotate(135deg);
-    background-color: var(--danger-color);
-}
-
-.widget-container.expanded #widget-toggle-icon:hover {
-    transform: rotate(135deg) scale(1.1);
-    background-color: var(--danger-hover-color);
-    box-shadow: var(--box-shadow-hover);
-}
-
 
 #answer-button {
     width: 100%;
@@ -216,12 +227,21 @@ html, body {
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    transition: background-color 0.2s;
-    margin-bottom: 0.5rem; /* Adjusted margin */
+    transition: background-color 0.2s, transform 0.1s ease;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
 #answer-button:hover:not(:disabled) {
     background-color: var(--icon-hover);
+    transform: translateY(-1px);
+}
+
+#answer-button:active:not(:disabled) {
+    transform: translateY(0);
 }
 
 #answer-button:disabled {
@@ -229,9 +249,15 @@ html, body {
     cursor: not-allowed;
 }
 
-#pip-button {
-    width: 100%;
-    padding: 10px 20px;
+.button-group {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+#pip-button, #detach-button {
+    flex-grow: 1;
+    padding: 8px 10px;
     font-size: 0.9rem;
     font-weight: 500;
     color: var(--text-color);
@@ -240,17 +266,21 @@ html, body {
     border-radius: 8px;
     cursor: pointer;
     transition: background-color 0.2s, border-color 0.2s;
-    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
 }
 
-#pip-button:hover {
+#pip-button:hover, #detach-button:hover {
     background-color: #e8eaed;
 }
 
-#pip-button:disabled {
+#pip-button:disabled, #detach-button:disabled {
     background-color: #f8f9fa;
     color: #bdc1c6;
     cursor: not-allowed;
+    opacity: 0.6;
 }
 
 
@@ -271,10 +301,10 @@ html, body {
 }
 
 .response-container {
-    background-color: #e8f0fe;
-    border-left: 5px solid var(--primary-color);
+    background-color: #f1f3f4;
+    border: 1px solid var(--border-color);
     padding: 1rem 1.5rem;
-    border-radius: 5px;
+    border-radius: 8px;
     text-align: left;
     margin-top: 1rem;
 }
@@ -282,12 +312,17 @@ html, body {
 .response-container h2, .response-container h3 {
     margin-top: 0;
     margin-bottom: 0.5rem;
-    color: #1a73e8;
+    color: var(--text-color);
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .response-container p {
     margin: 0 0 1rem 0;
     line-height: 1.6;
+    color: #5f6368;
 }
 
 .response-container p:last-child {
@@ -296,9 +331,9 @@ html, body {
 
 .error-container {
     background-color: #fce8e6;
-    border-left: 5px solid #d93025;
+    border: 1px solid #f9ab9f;
     padding: 1rem 1.5rem;
-    border-radius: 5px;
+    border-radius: 8px;
     color: #a50e04;
     font-weight: 500;
     text-align: left;

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Widget Trả lời</title>
+    <link rel="stylesheet" href="widget.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <script type="module" src="widget.tsx"></script>
+</head>
+<body>
+    <div id="widget-root">
+        <button id="answer-button">
+            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM6 22v-3c0-1.1.9-2 2-2h8c1.1 0 2 .9 2 2v3H6zm1-13.5c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM20 10c.83 0 1.5-.67 1.5-1.5S20.83 7 20 7s-1.5.67-1.5 1.5.67 1.5 1.5 1.5zM3.5 10c.83 0 1.5-.67 1.5-1.5S4.33 7 3.5 7 2 7.67 2 8.5 2.67 10 3.5 10zm8-6c.83 0 1.5-.67 1.5-1.5S12.33 1 11.5 1 10 1.67 10 2.5s.67 1.5 1.5 1.5z"/></svg>
+            <span>Trả lời (Ctrl+Space)</span>
+        </button>
+        <div id="loading-spinner" class="spinner" style="display: none;" role="status" aria-label="Đang tải"></div>
+        <div id="response-container" class="response-container" style="display: none;" aria-live="assertive">
+            <h2>Câu trả lời:</h2>
+            <p id="answer-text"></p>
+            <h3>Giải thích:</h3>
+            <p id="explanation-text"></p>
+            <h3>Mức độ tin cậy:</h3>
+            <p id="confidence-text"></p>
+        </div>
+        <div id="error-container" class="error-container" style="display: none;" role="alert"></div>
+    </div>
+</body>
+</html>
