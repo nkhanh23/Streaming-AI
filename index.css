@@ -18,18 +18,26 @@
 html, body {
     margin: 0;
     padding: 0;
-    height: 100%;
+    height: 100vh;
     width: 100%;
     overflow: hidden;
     font-family: var(--font-family);
     background-color: var(--background-color);
+    display: grid; /* Use CSS Grid for the main layout */
+    place-items: center; /* Center grid items like the setup container */
+}
+
+/* 
+  This new rule places all direct children of the body (video, image, setup container) 
+  into the same single grid cell, allowing them to stack and be aligned by the parent grid.
+*/
+body > * {
+    grid-area: 1 / 1;
 }
 
 /* Background views */
 #screen-stream, #uploaded-image {
-    position: fixed;
-    top: 0;
-    left: 0;
+    /* No longer uses fixed positioning; they are now grid items */
     width: 100%;
     height: 100%;
     z-index: -1;
@@ -46,10 +54,9 @@ html, body {
 
 /* Main Window Setup Screen */
 #setup-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
+    /* Centering is now handled by the 'body' grid layout, so flex properties are removed. */
+    /* This element will now be centered automatically. */
+    z-index: 1; /* Ensures it's on top of the background video/image */
 }
 
 .setup-box {

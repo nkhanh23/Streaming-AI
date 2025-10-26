@@ -368,7 +368,7 @@ async function getAnswer() {
         
         const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
         const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
+            model: "gemini-2.5-pro",
             contents: {
                 parts: [
                     {
@@ -392,8 +392,7 @@ async function getAnswer() {
                         confidence: { type: Type.STRING }
                     },
                     required: ["answer", "explanation", "confidence"]
-                },
-                thinkingConfig: { thinkingBudget: 0 }
+                }
             }
         });
 
@@ -401,12 +400,16 @@ async function getAnswer() {
 
         if (widgetWindow && !widgetWindow.closed) {
             (widgetWindow as any).showResult(result);
-            if (Notification.permission === 'granted') {
+            
+            // Only send a notification if the widget is not focused (i.e., in the background).
+            // This prevents redundant notifications if the user is already looking at the widget.
+            if (Notification.permission === 'granted' && !widgetWindow.document.hasFocus()) {
                 const notification = new Notification('Trợ lý có câu trả lời!', {
                     body: result.answer,
                     icon: NOTIFICATION_ICON,
                     silent: true,
                 });
+                // When the notification is clicked, focus the widget window to show details.
                 notification.onclick = () => {
                     widgetWindow?.focus();
                 };
