@@ -21,56 +21,32 @@
     <!-- Hidden elements for capture -->
     <canvas id="capture-canvas" style="display: none;"></canvas>
     
-    <!-- Background video for screen stream -->
+    <!-- Background view for stream or uploaded image -->
     <video id="screen-stream" autoplay muted playsinline></video>
+    <img id="uploaded-image" style="display: none;" />
 
     <!-- Initial view before streaming starts -->
     <div id="setup-container">
         <div class="setup-box">
             <h1>Trợ lý Trả lời Thông minh</h1>
-            <p>Bắt đầu quay màn hình để sử dụng trợ lý trả lời câu hỏi trực tiếp trên màn hình của bạn.</p>
-            <button id="start-button">Bắt đầu quay màn hình</button>
+            <p>Chọn một phương thức để cung cấp hình ảnh câu hỏi cho trợ lý.</p>
+            <div class="button-container">
+                <button id="start-button">Quay màn hình</button>
+                <button id="upload-button">Tải ảnh lên</button>
+                <input type="file" id="image-upload-input" accept="image/*" style="display: none;" />
+            </div>
+            <div class="privacy-note">
+                <strong>✨ Mẹo riêng tư:</strong> Để ẩn widget khi chia sẻ, hãy chọn chia sẻ một <strong>Tab cụ thể</strong> hoặc <strong>Cửa sổ</strong>, không chọn "Toàn bộ màn hình".
+            </div>
+            <small class="setup-note">Lưu ý: Quay màn hình có thể không hoạt động trong một số môi trường xem trước.</small>
             <div class="shortcuts">
                 <strong>Phím tắt:</strong><br>
-                • <strong>Ctrl+Shift+S</strong>: Bắt đầu / Dừng quay.<br>
-                • <strong>Ctrl+Space</strong>: Nhận câu trả lời.<br>
-                <small><strong>Lưu ý:</strong> Phím tắt chỉ hoạt động khi tab này đang được chọn.</small>
+                • <strong>Ctrl+Shift+S</strong>: Dừng phiên làm việc hiện tại.<br>
+                • <strong>Ctrl+Space</strong>: Nhận câu trả lời (khi đang chia sẻ).<br>
+                <small><strong>Lưu ý:</strong> Phím tắt chỉ hoạt động khi cửa sổ chính hoặc cửa sổ widget đang được chọn.</small>
             </div>
         </div>
     </div>
     
-    <!-- Floating Widget -->
-    <div id="floating-widget" class="widget-container" style="display: none;">
-        <div id="widget-content" class="widget-content">
-            <button id="answer-button">
-                 <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM6 22v-3c0-1.1.9-2 2-2h8c1.1 0 2 .9 2 2v3H6zm1-13.5c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM20 10c.83 0 1.5-.67 1.5-1.5S20.83 7 20 7s-1.5.67-1.5 1.5.67 1.5 1.5 1.5zM3.5 10c.83 0 1.5-.67 1.5-1.5S4.33 7 3.5 7 2 7.67 2 8.5 2.67 10 3.5 10zm8-6c.83 0 1.5-.67 1.5-1.5S12.33 1 11.5 1 10 1.67 10 2.5s.67 1.5 1.5 1.5z"/></svg>
-                <span>Trả lời</span>
-            </button>
-            <div class="button-group">
-                <button id="pip-button">
-                    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 0 24 24" width="20px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M19 7h-8v6h8V7zm2-4H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14z"/></svg>
-                    <span>Vào PiP</span>
-                </button>
-                <button id="detach-button">
-                    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 0 24 24" width="20px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>
-                    <span>Tách Widget</span>
-                </button>
-            </div>
-            <div id="loading-spinner" class="spinner" style="display: none;" role="status" aria-label="Đang tải"></div>
-            <div id="response-container" class="response-container" style="display: none;" aria-live="assertive">
-                <h2>Câu trả lời:</h2>
-                <p id="answer-text"></p>
-                <h3>Giải thích:</h3>
-                <p id="explanation-text"></p>
-                <h3>Mức độ tin cậy:</h3>
-                <p id="confidence-text"></p>
-            </div>
-            <div id="error-container" class="error-container" style="display: none;" role="alert"></div>
-        </div>
-        <button id="widget-toggle-icon" aria-label="Mở/đóng widget">
-            <svg class="icon-open" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="32px" height="32px"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18zM18 14H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
-            <svg class="icon-close" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="32px" height="32px"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
-        </button>
-    </div>
 </body>
 </html>
